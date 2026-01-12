@@ -14,7 +14,7 @@ spec:
     - name: Root Filesystem
       description: Ensure containers are readonly
       policyGroups:
-        - name: Root Filesystem
+        - name: Root Filesystem Group
           fieldName: containerRootFilesystemReadOnly
           policies:
             - name: Require readonly root filesystem
