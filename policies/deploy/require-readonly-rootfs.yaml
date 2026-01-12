@@ -1,0 +1,15 @@
+name: Require Read-Only Root Filesystem
+description: Containers must run with a read-only root filesystem
+rationale: Prevents attackers from writing to the container filesystem
+severity: MEDIUM_SEVERITY
+categories:
+  - Kubernetes Security
+lifecycleStages:
+  - DEPLOY
+eventSource: NOT_APPLICABLE
+policySections:
+  - sectionName: Security Context
+    policyGroups:
+      - fieldName: Read-Only Root Filesystem
+        values:
+          - value: "false"
