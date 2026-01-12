@@ -3,8 +3,6 @@ kind: SecurityPolicy
 metadata:
   name: require-readonly-rootfs
   namespace: stackrox
-  annotations:
-    argocd.argoproj.io/tracking-id: rhacs-policies:config.stackrox.io/SecurityPolicy:stackrox/require-readonly-rootfs
 spec:
   policyName: Require readonly root filesystem
   categories:
