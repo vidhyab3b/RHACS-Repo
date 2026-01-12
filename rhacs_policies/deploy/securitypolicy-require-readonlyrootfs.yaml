@@ -5,7 +5,7 @@ metadata:
 spec:
   categories:
     - Security
-  severity: HIGH
+  severity: HIGH_SEVERITY
   lifecycleStages:
     - DEPLOY
   policySections:
@@ -13,7 +13,9 @@ spec:
       description: Ensure containers are readonly
       policyGroups:
         - name: Root Filesystem
+          fieldName: rootfs
           policies:
-            - name: Require readonly root filesystem
+            - policyName: require-readonly-rootfs
+              name: Require readonly root filesystem
               description: Containers must have read-only rootfs
               type: K8S
