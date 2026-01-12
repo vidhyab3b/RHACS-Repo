@@ -1,0 +1,130 @@
+RHACS Policies Repository
+
+This repository contains SecurityPolicy manifests for Red Hat Advanced Cluster Security (RHACS) / StackRox and is managed via ArgoCD.
+
+Repository Structure
+rhacs_policies/
+└── deploy/
+    └── require-readonly-rootfs.yaml   # Example SecurityPolicy
+argocd-app.yaml                        # ArgoCD Application manifest
+argocd-rbac.yaml                        # ArgoCD ServiceAccount + RoleBinding
+README.md                               # This documentation
+
+1. Install RHACS Operator
+
+Login to OpenShift:
+
+oc login --token=<token> --server=<server>
+
+
+Create the RHACS namespace:
+
+oc create namespace stackrox
+
+
+Install the RHACS Operator (via OpenShift Console or CLI):
+
+oc apply -f https://raw.githubusercontent.com/stackrox/stackrox/master/install/stackrox-operator.yaml
+
+
+Ensure the operator is running and stackrox namespace pods are healthy.
+
+2. Create ArgoCD ServiceAccount, Role, and RoleBinding
+
+Apply the RBAC manifests for ArgoCD:
+
+oc apply -f argocd-rbac.yaml
+
+
+This will create:
+
+ServiceAccount: argocd-stackrox-sa in openshift-gitops
+
+Role: argocd-stackrox-role in stackrox
+
+RoleBinding: argocd-stackrox-rb in stackrox
+
+This allows ArgoCD to manage SecurityPolicy resources in the stackrox namespace.
+
+3. Configure ArgoCD Application
+
+Apply the ArgoCD application manifest:
+
+oc apply -f argocd-app.yaml
+
+
+This will:
+
+Sync the rhacs_policies/deploy/ directory to the stackrox namespace
+
+Automate deployment of SecurityPolicies
+
+Self-heal and prune changes as needed
+
+4. Add / Update SecurityPolicies
+
+Place your YAML files under rhacs_policies/deploy/.
+Example:
+
+rhacs_policies/deploy/require-readonly-rootfs.yaml
+
+
+Commit and push changes:
+
+git add rhacs_policies/deploy/require-readonly-rootfs.yaml
+git commit -m "Add Require Read-Only Root Filesystem policy"
+git push origin main
+
+
+ArgoCD will automatically detect the change and apply the SecurityPolicy.
+
+5. Verify SecurityPolicy Deployment
+
+Check the SecurityPolicy status:
+
+oc get securitypolicy require-readonly-rootfs -n stackrox -o yaml
+
+
+Expected output:
+
+status.accepted: true
+
+policyId populated
+
+No validation errors
+
+You can also view policies in the RHACS UI.
+
+6. Example SecurityPolicy
+apiVersion: config.stackrox.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: require-readonly-rootfs
+  namespace: stackrox
+spec:
+  policyName: Require Read-Only Root Filesystem
+  categories:
+    - Kubernetes Security
+  severity: MEDIUM_SEVERITY
+  lifecycleStages:
+    - DEPLOY
+  policySections:
+    - name: Security Context
+      description: Containers must run with a read-only root filesystem
+      policyGroups:
+        - name: Read-Only Root Filesystem Group
+          fieldName: Read-Only Root Filesystem
+          values:
+            - value: "true"
+          policies:
+            - name: Require Read-Only Root Filesystem
+              description: Containers must run with a read-only root filesystem
+              type: K8S
+
+Notes
+
+Always verify fieldName and values in SecurityPolicy YAMLs against RHACS documentation.
+
+Use the status field of SecurityPolicy to debug validation errors.
+
+All new SecurityPolicies should follow the same policySections structure for ArgoCD automation.
