@@ -4,7 +4,7 @@ metadata:
   name: require-readonly-rootfs
   namespace: stackrox
 spec:
-  policyName: Require read-only root filesystem
+  policyName: Require readonly root filesystem
   categories:
     - Security
   severity: HIGH_SEVERITY
