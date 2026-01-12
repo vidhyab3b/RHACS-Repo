@@ -1,9 +1,9 @@
 name: RHACS Policy as Code (YAML)
 
 on:
-  workflow_dispatch:  # Allows manual trigger
+  workflow_dispatch:
   push:
-    branches: [ main ]  # Run on pushes to main
+    branches: [ main ]
 
 jobs:
   policy-as-code:
@@ -12,7 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Download roxctl from RHACS Central
       - name: Download roxctl
         env:
           ROX_CENTRAL_ADDRESS: ${{ secrets.RHACS_CENTRAL_ENDPOINT }}
@@ -24,7 +23,6 @@ jobs:
             -o roxctl
           chmod +x roxctl
 
-      # Convert YAML policies to JSON
       - name: Convert policies YAML → JSON
         run: |
           mkdir -p policies-json
@@ -32,16 +30,18 @@ jobs:
             yq -o=json '.' "$file" > "policies-json/$(basename "$file" .yaml).json"
           done
 
-      # Validate policies
       - name: Validate policies
         run: |
-          ./roxctl policy validate policies-json/
+          for file in policies-json/*.json; do
+            ./roxctl central validate --file "$file"
+          done
 
-      # Import policies into RHACS
       - name: Import policies into RHACS
         env:
           ROX_API_TOKEN: ${{ secrets.RHACS_API_TOKEN }}
           ROX_CENTRAL_ADDRESS: ${{ secrets.RHACS_CENTRAL_ENDPOINT }}
           ROX_INSECURE_CLIENT_TLS: "true"
         run: |
-          ./roxctl policy import policies-json/
+          for file in policies-json/*.json; do
+            ./roxctl central create-policy --file "$file"
+          done
