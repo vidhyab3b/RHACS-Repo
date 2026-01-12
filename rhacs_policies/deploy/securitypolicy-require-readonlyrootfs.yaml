@@ -1,0 +1,18 @@
+apiVersion: config.stackrox.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: require-readonly-rootfs
+spec:
+  policyName: Require Read-Only Root Filesystem
+  policy:
+    description: Containers must run with a read-only root filesystem
+    severity: MEDIUM_SEVERITY
+    categories: ["Kubernetes Security"]
+    lifecycleStages: ["DEPLOY"]
+    eventSource: NOT_APPLICABLE
+    policySections:
+      - sectionName: Security Context
+        policyGroups:
+          - fieldName: Read-Only Root Filesystem
+            values:
+              - value: "false"
