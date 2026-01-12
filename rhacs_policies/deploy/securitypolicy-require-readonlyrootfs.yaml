@@ -4,19 +4,21 @@ metadata:
   name: require-readonly-rootfs
   namespace: stackrox
 spec:
-  policyName: Require readonly root filesystem
+  policyName: Require Read-Only Root Filesystem
   categories:
-    - Security
-  severity: HIGH_SEVERITY
+    - Kubernetes Security
+  severity: MEDIUM_SEVERITY
   lifecycleStages:
     - DEPLOY
   policySections:
-    - name: Root Filesystem
-      description: Ensure containers are readonly
+    - name: Security Context
+      description: Containers must run with a read-only root filesystem
       policyGroups:
-        - name: Root Filesystem Group
-          fieldName: containerRootFilesystemReadOnly
+        - name: Read-Only Root Filesystem Group
+          fieldName: Read-Only Root Filesystem
+          values:
+            - value: "true"        # <- This is required
           policies:
-            - name: Require readonly root filesystem
-              description: Containers must have read-only rootfs
+            - name: Require Read-Only Root Filesystem
+              description: Containers must run with a read-only root filesystem
               type: K8S
