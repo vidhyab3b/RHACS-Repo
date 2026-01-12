@@ -10,13 +10,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download rhacs-cli from Central
+      - name: Download rhacs-cli from Central (authenticated)
         env:
           ROX_CENTRAL_ADDRESS: ${{ secrets.RHACS_CENTRAL_ENDPOINT }}
+          ROX_API_TOKEN: ${{ secrets.RHACS_API_TOKEN }}
         run: |
-          curl -k -L https://$ROX_CENTRAL_ADDRESS/api/cli/download/rhacs-cli-linux \
+          curl -k -L \
+            -H "Authorization: Bearer $ROX_API_TOKEN" \
+            https://$ROX_CENTRAL_ADDRESS/api/cli/download/rhacs-cli-linux \
             -o rhacs-cli
           chmod +x rhacs-cli
+
+      - name: Verify rhacs-cli binary
+        run: |
+          file rhacs-cli
 
       - name: Test RHACS connection
         env:
