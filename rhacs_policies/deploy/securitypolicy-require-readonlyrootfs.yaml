@@ -3,7 +3,7 @@ kind: SecurityPolicy
 metadata:
   name: require-readonly-rootfs
 spec:
-  policyName: "Require Readonly RootFS"
+  policyName: require-readonly-rootfs
   categories:
     - Security
   severity: HIGH_SEVERITY
@@ -14,8 +14,9 @@ spec:
       description: Ensure containers are readonly
       policyGroups:
         - name: Root Filesystem
-          fieldName: "rootfs"
+          fieldName: rootFilesystem
           policies:
             - name: Require readonly root filesystem
               description: Containers must have read-only rootfs
               type: K8S
+              fieldName: readonlyRootFs
