@@ -32,9 +32,7 @@ jobs:
 
       - name: Validate policies
         run: |
-          for file in policies-json/*.json; do
-            ./roxctl central validate --file "$file"
-          done
+          ./roxctl central validate -d policies-json/
 
       - name: Import policies into RHACS
         env:
@@ -42,6 +40,4 @@ jobs:
           ROX_CENTRAL_ADDRESS: ${{ secrets.RHACS_CENTRAL_ENDPOINT }}
           ROX_INSECURE_CLIENT_TLS: "true"
         run: |
-          for file in policies-json/*.json; do
-            ./roxctl central create-policy --file "$file"
-          done
+          ./roxctl central create-policy -d policies-json/
