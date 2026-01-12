@@ -1,23 +1,38 @@
-- name: Install yq
-  run: |
-    sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
-    sudo chmod +x /usr/bin/yq
+name: RHACS Policy as Code
 
-- name: Convert YAML → JSON
-  run: |
-    mkdir -p policies-json
-    for file in policies/**/*.yaml; do
-      yq -o=json '.' "$file" > "policies-json/$(basename "$file" .yaml).json"
-    done
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
 
-- name: Import into RHACS via API
-  env:
-    RHACS_API_TOKEN: ${{ secrets.RHACS_API_TOKEN }}
-    RHACS_CENTRAL_ENDPOINT: ${{ secrets.RHACS_CENTRAL_ENDPOINT }}
-  run: |
-    for file in policies-json/*.json; do
-      curl -k -X POST "https://$RHACS_CENTRAL_ENDPOINT/v1/policies" \
-        -H "Authorization: Bearer $RHACS_API_TOKEN" \
-        -H "Content-Type: application/json" \
-        --data-binary @"$file"
-    done
+jobs:
+  policy-as-code:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install yq
+        run: |
+          sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
+          sudo chmod +x /usr/bin/yq
+
+      - name: Convert YAML → JSON
+        run: |
+          mkdir -p policies-json
+          for file in policies/**/*.yaml; do
+            yq -o=json '.' "$file" > "policies-json/$(basename "$file" .yaml).json"
+          done
+
+      - name: Import into RHACS via API
+        env:
+          RHACS_API_TOKEN: ${{ secrets.RHACS_API_TOKEN }}
+          RHACS_CENTRAL_ENDPOINT: ${{ secrets.RHACS_CENTRAL_ENDPOINT }}
+        run: |
+          for file in policies-json/*.json; do
+            echo "Importing $file"
+            curl -k -X POST "https://$RHACS_CENTRAL_ENDPOINT/v1/policies" \
+              -H "Authorization: Bearer $RHACS_API_TOKEN" \
+              -H "Content-Type: application/json" \
+              --data-binary @"$file"
+          done
