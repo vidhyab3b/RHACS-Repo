@@ -1,19 +1,20 @@
 name: RHACS Connectivity Test
 
 on:
-  workflow_dispatch:   # Allows manual run from GitHub UI
+  workflow_dispatch:
 
 jobs:
   test-rhacs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Download rhacs-cli
+      - name: Download rhacs-cli from Central
+        env:
+          ROX_CENTRAL_ADDRESS: ${{ secrets.RHACS_CENTRAL_ENDPOINT }}
         run: |
-          curl -L https://mirror.openshift.com/pub/rhacs/assets/latest/bin/Linux/rhacs-cli \
+          curl -k -L https://$ROX_CENTRAL_ADDRESS/api/cli/download/rhacs-cli-linux \
             -o rhacs-cli
           chmod +x rhacs-cli
 
@@ -21,5 +22,6 @@ jobs:
         env:
           ROX_API_TOKEN: ${{ secrets.RHACS_API_TOKEN }}
           ROX_CENTRAL_ADDRESS: ${{ secrets.RHACS_CENTRAL_ENDPOINT }}
+          ROX_INSECURE_CLIENT_TLS: "true"
         run: |
           ./rhacs-cli version
