@@ -2,11 +2,12 @@ apiVersion: config.stackrox.io/v1alpha1
 kind: SecurityPolicy
 metadata:
   name: require-readonly-rootfs
+  namespace: stackrox
 spec:
-  policyName: "Require readonly root filesystem"   # ✅ REQUIRED
+  policyName: Require readonly root filesystem
   categories:
     - Security
-  severity: HIGH_SEVERITY                             # ✅ Must use *_SEVERITY
+  severity: HIGH_SEVERITY
   lifecycleStages:
     - DEPLOY
   policySections:
@@ -14,7 +15,7 @@ spec:
       description: Ensure containers are readonly
       policyGroups:
         - name: Root Filesystem
-          fieldName: rootfs                       # ✅ REQUIRED
+          fieldName: rootfs
           policies:
             - name: Require readonly root filesystem
               description: Containers must have read-only rootfs
